@@ -3,17 +3,26 @@ import prisma from "../config/db.js";
 export const search_dishes = async (req, res) => {
     try {
         const { name, minPrice, maxPrice } = req.query;
-        // console.log({name,minPrice,maxPrice})
+
+        const whereCondition = {};
+
+        // dish name filter (only if provided)
+        if (name) {
+            whereCondition.dishName = {
+                contains: name,
+            };
+        }
+
+        // price filter (only if both provided)
+        if (minPrice && maxPrice) {
+            whereCondition.price = {
+                gte: Number(minPrice),
+                lte: Number(maxPrice),
+            };
+        }
+
         const items = await prisma.menuItem.findMany({
-            where: {
-                dishName: {
-                    contains: name,
-                },
-                price: {
-                    gte: Number(minPrice),
-                    lte: Number(maxPrice),
-                },
-            },
+            where: whereCondition,
             include: {
                 restaurant: true,
                 orders: {
@@ -34,17 +43,16 @@ export const search_dishes = async (req, res) => {
             .sort((a, b) => b.orderCount - a.orderCount)
             .slice(0, 10);
 
-
-        return res.status(200).send({
+        return res.status(200).json({
             status: true,
-            restaurants: results
-        })
+            restaurants: results,
+        });
 
     } catch (error) {
-        console.log(error)
-        return res.status(400).send({
+        console.error(error);
+        return res.status(500).json({
             status: false,
-            message: error.message || "somthing went wrong while fetching dishes."
-        })
+            message: error.message || "Something went wrong while fetching dishes",
+        });
     }
-}
+};
