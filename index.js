@@ -12,11 +12,11 @@ app.use(express.json());
 
 // Helth check
 app.get("/", async (req, res) => {
-
+  return res.status(200).send({ status: true, message: "Health is good!" })
 
 });
 // Search route
-app.use("/api/search", search_route);
+app.use("/search", search_route);
 
 // Start server
 app.listen(PORT, async () => {

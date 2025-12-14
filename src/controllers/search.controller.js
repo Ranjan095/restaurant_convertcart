@@ -37,7 +37,7 @@ export const search_dishes = async (req, res) => {
 
         return res.status(200).send({
             status: true,
-            data: results
+            restaurants: results
         })
 
     } catch (error) {
